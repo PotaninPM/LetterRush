@@ -21,7 +21,7 @@ import com.mikepm.letterrush.R
 import com.mikepm.letterrush.ui.navigation.BottomNavItem
 import com.mikepm.letterrush.ui.navigation.Screen
 import com.mikepm.letterrush.ui.navigation.WordconNavBar
-import com.mikepm.letterrush.ui.navigation.WordconNavHost
+import com.mikepm.letterrush.ui.navigation.LetterRushNavHost
 
 @Composable
 fun MainScreen() {
@@ -71,7 +71,7 @@ fun MainScreen() {
                 .fillMaxSize()
                 .padding(it)
         ) {
-            WordconNavHost(
+            LetterRushNavHost(
                 modifier = Modifier
                     .fillMaxSize()
                     .weight(1f),

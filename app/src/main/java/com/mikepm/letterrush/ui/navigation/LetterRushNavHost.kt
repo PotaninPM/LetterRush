@@ -16,7 +16,7 @@ import com.mikepm.letterrush.ui.screens.MainScreen
 import com.mikepm.letterrush.ui.screens.RatingScreen
 
 @Composable
-fun WordconNavHost(
+fun LetterRushNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
