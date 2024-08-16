@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Wordcon</string>
+    <string name="home">Главная</string>
+    <string name="games">Игры</string>
+    <string name="rating">Рейтинг</string>
+    <string name="account">Аккаунт</string>
+    <string name="random_game">Случайная игра</string>
+    <string name="select_random_game">Выбрать случайную игру</string>
+    <string name="by_category">По категориям</string>
+    <string name="cities">Города</string>
+    <string name="animals">Животные</string>
+    <string name="food">Еда</string>
+    <string name="go_back">Назад</string>
+    <string name="used_words">Использованные слова</string>
+    <string name="type_a_word">Введите слово</string>
+    <string name="mode">Режим</string>
+    <string name="players_limit">Лимит игроков</string>
+    <string name="room_name">Название комнаты</string>
+    <string name="room_password">Пароль (необязательно)</string>
+    <string name="open">Открыто</string>
+    <string name="private_">Приватная</string>
+    <string name="full">Набрана</string>
+    <string name="players">Игроков: %1$s / %2$s</string>
+    <string name="all">Все</string>
+    <string name="create_game">Создать игру</string>
+    <string name="room_info">Информация о комнате</string>
+    <string name="ranking_impact">Влияние на рейтинг</string>
+    <string name="seconds">сек</string>
+    <string name="minutes">мин</string>
+    <string name="hours">ч</string>
+    <string name="days">дн</string>
+    <string name="turn_duration">Длительность хода</string>
+    <string name="amount">Количество</string>
+</resources>

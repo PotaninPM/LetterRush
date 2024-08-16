@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">Wordcon</string>
+    <string name="home">Main</string>
+    <string name="games">Games</string>
+    <string name="rating">Rating</string>
+    <string name="account">Account</string>
+    <string name="random_game">Random game</string>
+    <string name="select_random_game">Select random game</string>
+    <string name="by_category">By category</string>
+    <string name="cities">Cities</string>
+    <string name="animals">Animals</string>
+    <string name="food">Food</string>
+    <string name="go_back">Go back</string>
+    <string name="used_words">Used words</string>
+    <string name="type_a_word">Enter word</string>
+    <string name="mode">Mode</string>
+    <string name="players_limit">Players limit</string>
+    <string name="room_name">Room name</string>
+    <string name="room_password">Password (optional)</string>
+    <string name="open">Open</string>
+    <string name="private_">Private</string>
+    <string name="full">Full</string>
+    <string name="players">Players: %1$s / %2$s</string>
+    <string name="all">All</string>
+    <string name="create_game">Create game</string>
+    <string name="room_info">Room info</string>
+    <string name="ranking_impact">Ranking impact</string>
+    <string name="seconds">sec</string>
+    <string name="minutes">min</string>
+    <string name="hours">hr</string>
+    <string name="days">d</string>
+    <string name="turn_duration">Turn duration</string>
+    <string name="amount">Amount</string>
+</resources>
