@@ -10,4 +10,5 @@ sealed class Screen(val route: String) {
 
     data object LobbyScreen : Screen("lobby_screen")
     data object CreateGameScreen: Screen("create_game_screen")
+    data object GameSettingsScreen: Screen("game_settings_screen")
 }

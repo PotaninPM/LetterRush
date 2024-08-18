@@ -31,4 +31,10 @@
     <string name="days">d</string>
     <string name="turn_duration">Turn duration</string>
     <string name="amount">Amount</string>
+    <string name="with_robot">With robot</string>
+    <string name="onevsone">One vs one</string>
+    <string name="group">With group</string>
+    <string name="play">Play</string>
+    <string name="choose_mode">Choose mode</string>
+    <string name="random">Random</string>
 </resources>

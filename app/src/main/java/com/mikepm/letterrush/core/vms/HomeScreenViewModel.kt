@@ -15,22 +15,26 @@ class HomeScreenViewModel : ViewModel() {
     fun fetchCategories() {
         viewModelScope.launch {
             if(!isInitialized) {
-                val categoriesList = listOf( // stub data
+                val categoriesList = listOf(
+                    // stub data
                     GameCategory(
                         id = 0,
-                        name = R.string.cities,
-                        image = R.drawable.moscow
+                        type = "robot",
+                        name = R.string.with_robot,
+                        image = R.drawable.robot
                     ),
                     GameCategory(
                         id = 1,
-                        name = R.string.animals,
-                        image = R.drawable.capybara
+                        type = "one",
+                        name = R.string.onevsone,
+                        image = R.drawable.onevsone
                     ),
                     GameCategory(
                         id = 2,
-                        name = R.string.food,
-                        image = R.drawable.food
-                    ),
+                        type = "group",
+                        name = R.string.group,
+                        image = R.drawable.groupcup
+                    )
                 )
                 _categories.addAll(categoriesList)
                 isInitialized = true

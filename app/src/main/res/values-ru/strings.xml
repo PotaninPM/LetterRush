@@ -32,4 +32,10 @@
     <string name="days">дн</string>
     <string name="turn_duration">Длительность хода</string>
     <string name="amount">Количество</string>
+    <string name="with_robot">С роботом</string>
+    <string name="onevsone">Один на один</string>
+    <string name="group">С группой</string>
+    <string name="play">Играть</string>
+    <string name="choose_mode">Выберите режим</string>
+    <string name="random">Случайный</string>
 </resources>

@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.mikepm.letterrush.ui.screens.AccountScreen
 import com.mikepm.letterrush.ui.screens.CreateGameScreen
+import com.mikepm.letterrush.ui.screens.GameSettingsScreen
 import com.mikepm.letterrush.ui.screens.GamesScreen
 import com.mikepm.letterrush.ui.screens.HomeScreen
 import com.mikepm.letterrush.ui.screens.LobbyScreen
@@ -48,6 +49,10 @@ fun LetterRushNavHost(
                 lobbyId = lobbyId.toString(),
                 navController = navController
             )
+        }
+
+        composable(Screen.GameSettingsScreen.route) {
+            GameSettingsScreen(navController = navController)
         }
         
         composable(Screen.CreateGameScreen.route) {

@@ -2,8 +2,12 @@ package com.mikepm.letterrush.ui.screens
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,24 +20,40 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsStartWidth
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItemDefaults.contentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -44,6 +64,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
@@ -96,9 +117,11 @@ fun HomeScreen(navController: NavController) {
                 .padding(innerPadding)
                 .verticalScroll(scrollState)
         ) {
-            RandomGameSection(titleRes = R.string.random_game) {
-                RandomGameCard(navController = navController)
-            }
+//            RandomGameSection(titleRes = R.string.random_game) {
+//                RandomGameCard(navController = navController)
+//            }
+            UpSliderWithAds(3, arrayListOf("Приглашайте друзей", "Учавствуйте в событиях", "Радуйтесь кадый день"))
+
             GamesByCategorySection(titleRes = R.string.by_category) {
                 val categories = viewModel.categories
 
@@ -110,10 +133,61 @@ fun HomeScreen(navController: NavController) {
                     GameByCategoryCard(
                         navController = navController,
                         categoryNameRes = category.name,
-                        cardBackgroundRes = category.image
+                        cardBackgroundRes = category.image,
+                        type = category.type
                     )
                 }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun UpSliderWithAds(pages: Int, info: ArrayList<String>) {
+    
+    val pageCount = pages
+
+    val pagerState = rememberPagerState(pageCount = { pageCount })
+
+    HorizontalPager(
+        state = pagerState,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+    ) { page ->
+        Card(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp)
+                .border(
+                    width = 1.dp,
+                    MaterialTheme.colorScheme.primary,
+                    shape = MaterialTheme.shapes.medium
+                ),
+            shape = MaterialTheme.shapes.medium,
+        ) {
+            Text(text = info[page])
+        }
+    }
+
+    Row(
+        Modifier
+            .wrapContentHeight()
+            .fillMaxWidth()
+            .padding(top = 8.dp),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        repeat(pagerState.pageCount) { iteration ->
+            val color = if (pagerState.currentPage == iteration) Color.Blue else MaterialTheme.colorScheme.primaryContainer
+            Box(
+                modifier = Modifier
+                    .padding(end = 5.dp)
+                    .width(20.dp)
+                    .clip(shape = MaterialTheme.shapes.small)
+                    .background(color)
+                    .height(5.dp)
+            )
         }
     }
 }
@@ -159,26 +233,28 @@ fun RandomGameCard(
         modifier = modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
-            .height(150.dp)
+            .height(100.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(16.dp),
         ) {
             Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.shuffle),
+                painter = painterResource(id = R.drawable.dices),
                 contentDescription = null,
+                tint = Color.Unspecified,
                 modifier = Modifier
                     .size(60.dp)
-                    .align(Alignment.TopEnd)
+                    .align(Alignment.CenterEnd)
             )
             Text(
                 text = stringResource(id = R.string.select_random_game),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier
-                    .align(Alignment.BottomStart)
+                    .width(170.dp)
+                    .align(Alignment.CenterStart)
             )
         }
     }
@@ -207,21 +283,30 @@ fun GameByCategoryCard(
     navController: NavController,
     @StringRes categoryNameRes: Int,
     @DrawableRes cardBackgroundRes: Int,
+    type: String,
     modifier: Modifier = Modifier
 ) {
+
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
         ),
         onClick = {
-            val lobbyId = "stub"
-            navController.navigate("${Screen.LobbyScreen.route}/$lobbyId") {
-                popUpTo(Screen.HomeScreen.route) {
+            navController.navigate(Screen.GameSettingsScreen.route) {
+                popUpTo(Screen.GameSettingsScreen.route) {
                     saveState = true
                 }
                 launchSingleTop = true
                 restoreState = true
             }
+//            val lobbyId = "stub"
+//            navController.navigate("${Screen.LobbyScreen.route}/$lobbyId") {
+//                popUpTo(Screen.HomeScreen.route) {
+//                    saveState = true
+//                }
+//                launchSingleTop = true
+//                restoreState = true
+//            }
         },
         modifier = modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
