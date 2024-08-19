@@ -25,6 +25,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -40,6 +41,7 @@ import coil.request.ImageRequest
 import coil.size.Scale
 import com.mikepm.letterrush.R
 import com.mikepm.letterrush.core.network.entities.GameCategory
+import com.mikepm.letterrush.ui.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,7 +51,7 @@ fun GameSettingsScreen(navController: NavController) {
 
     Scaffold(
         bottomBar = {
-            BottomBar()
+            BottomBar(navController)
         },
         topBar = {
             TopAppBar(
@@ -78,7 +80,103 @@ fun GameSettingsScreen(navController: NavController) {
             GameTypesSection(R.string.choose_mode) {
                 GameTypes()
             }
+
+            RatingImpactSelection(R.string.ranking_impact) {
+                RatingImpact()
+            }
         }
+    }
+}
+
+@Composable
+fun RatingImpact() {
+    val types = listOf(
+        GameCategory(
+            id = 0,
+            type = "rating",
+            name = R.string.rating_game,
+            image = R.drawable.rating_game
+        ),
+        GameCategory(
+            id = 1,
+            type = "nonrating",
+            name = R.string.non_rating_game,
+            image = R.drawable.non_rating_game
+        )
+    )
+
+    val selectedPageIndex = rememberSaveable { mutableStateOf(0) }
+
+    LazyRow {
+        items(types) { item ->
+            Box(
+                modifier = Modifier
+                    .padding(9.dp)
+                    .size(175.dp)
+                    .clickable {
+                        selectedPageIndex.value = item.id.toInt()
+                    }
+                    .then(
+                        if (selectedPageIndex.value == item.id.toInt()) {
+                            Modifier.border(
+                                width = 4.dp,
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = RoundedCornerShape(16.dp)
+                            )
+                        } else Modifier
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(item.image)
+                            .setParameter("compression", "80")
+                            .placeholder(R.drawable.placeholder_gradient)
+                            .scale(Scale.FILL)
+                            .build()
+                    ),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(16.dp))
+                        .graphicsLayer(alpha = 0.8f)
+                )
+                Text(
+                    text = stringResource(id = item.name),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.White,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .background(
+                            color = Color.Black.copy(alpha = 0.6f),
+                            shape = RoundedCornerShape(bottomEnd = 16.dp, bottomStart = 16.dp)
+                        )
+                        .padding(14.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun RatingImpactSelection(
+    @StringRes titleRes: Int,
+    content: @Composable () -> Unit
+) {
+    Column {
+        Text(
+            text = stringResource(id = titleRes),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Normal,
+            modifier = Modifier
+                .paddingFromBaseline(top = 30.dp, bottom = 6.dp)
+                .padding(horizontal = 13.dp)
+        )
+        content()
     }
 }
 
@@ -101,7 +199,7 @@ fun GameTypesSection(
 }
 
 @Composable
-fun BottomBar() {
+fun BottomBar(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -117,6 +215,16 @@ fun BottomBar() {
                 ),
                 shape = RoundedCornerShape(12.dp)
             )
+            .clickable {
+                val lobbyId = "stub"
+                navController.navigate("${Screen.LobbyScreen.route}/$lobbyId") {
+                    popUpTo(Screen.HomeScreen.route) {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }
             .border(
                 width = 2.dp,
                 color = Color(0xFF679F48),
@@ -171,7 +279,7 @@ fun GameTypes() {
             Box(
                 modifier = Modifier
                     .padding(9.dp)
-                    .size(200.dp)
+                    .size(180.dp)
                     .clickable {
                         selectedPageIndex.value = item.id.toInt()
                     }
@@ -212,6 +320,7 @@ fun GameTypes() {
                         .fillMaxWidth()
                         .background(
                             color = Color.Black.copy(alpha = 0.6f),
+                            shape = RoundedCornerShape(bottomEnd = 16.dp, bottomStart = 16.dp)
                         )
                         .padding(14.dp)
                 )

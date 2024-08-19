@@ -3,139 +3,172 @@ package com.mikepm.letterrush.ui.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.mikepm.letterrush.R
-import com.mikepm.letterrush.core.network.entities.PlayerRatingInfo
+import com.mikepm.letterrush.ui.navigation.Screen
 
-@OptIn(ExperimentalMaterial3Api::class)
+data class LeaderboardItem(
+    val position: Int,
+    val name: String,
+    val points: Int,
+    val imageUrl: Int // Replace with the actual image resource
+)
+
 @Composable
 fun RatingScreen() {
+    val leaderboardItems = listOf(
+        LeaderboardItem(1, "Bryan Wolf", 400, R.drawable.moscow), // Replace with the actual image resource
+        LeaderboardItem(2, "Meghan Jessica", 390, R.drawable.moscow),
+        LeaderboardItem(3, "Alex Turner", 380, R.drawable.moscow),
+        LeaderboardItem(4, "Marsha Fisher", 360, R.drawable.moscow),
+        LeaderboardItem(5, "Marsha Fisher", 360, R.drawable.moscow),
+        LeaderboardItem(6, "Marsha Fisher", 360, R.drawable.moscow),
+        LeaderboardItem(7, "Marsha Fisher", 360, R.drawable.moscow),
+        LeaderboardItem(8, "Marsha Fisher", 360, R.drawable.moscow),
+        LeaderboardItem(9, "Marsha Fisher", 360, R.drawable.moscow),
+        LeaderboardItem(10, "Marsha Fisher", 360, R.drawable.moscow),
+        // Add more items as needed
+    )
+    val userPosition = LeaderboardItem(101, "Вы", 30, R.drawable.moscow)
 
-    val sheetState = rememberModalBottomSheetState()
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(id = R.string.rating),
-                        fontWeight = FontWeight.SemiBold
-                    )
-                },
-                actions = {
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = null
-                        )
-                    }
-                }
-            )
-        },
-        contentWindowInsets = WindowInsets(0.dp)
-    ) { innerPadding ->
-        val items = listOf(PlayerRatingInfo(1, R.drawable.moscow,"Elena", 360), PlayerRatingInfo(2, R.drawable.moscow,"Elena2", 380))
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surfaceContainerLowest) // Background color of the screen
+            .padding(horizontal = 16.dp, vertical = 10.dp)
+            .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Top))
+    ) {
+        // Top 3 users
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
         ) {
-            Spacer(modifier = Modifier.weight(1f))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(450.dp)
-                    .background(Color.Black)
-            ) {
-                LazyColumn(
-                    contentPadding = PaddingValues(10.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(items) { item ->
-                        PlayerCard(place = item.place, image = item.image, username = item.username, score = item.score)
-                    }
-                }
-//                HorizontalDivider()
-//                PlayerCard(place = 102, image = R.drawable.food, username = "Mike", score = 108)
+            leaderboardItems.take(3).forEach { item ->
+                LeaderboardTopItem(item)
             }
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Other users
+        LazyColumn(
+            modifier = Modifier
+                .weight(1f)
+        ) {
+            items(leaderboardItems.drop(3)) { item ->
+                LeaderboardListItem(item = item)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        HorizontalDivider(thickness = 1.dp, color = Color.Gray)
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // User position at the bottom
+        LeaderboardListItem(userPosition, isUser = true)
     }
 }
 
 @Composable
-fun PlayerCard(place: Int, image: Int, username: String, score: Int) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color.DarkGray)
+fun LeaderboardTopItem(item: LeaderboardItem) {
+    Column(
+        modifier = Modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(
+        Image(
+            painter = painterResource(id = item.imageUrl),
+            contentDescription = item.name,
+            contentScale = ContentScale.Crop,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = place.toString(),
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.width(32.dp)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Image(
-                painter = painterResource(id = image),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-            )
+                .size(70.dp)
+                .border(
+                    width = 2.dp,
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = CircleShape
+                )
+                .clip(CircleShape)
+        )
 
-            Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = item.name,
+            fontSize = 14.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 4.dp)
+        )
+
+        Text(
+            text = "${item.points} pts",
+            color = Color.Gray,
+            fontSize = 12.sp
+        )
+    }
+}
+
+@Composable
+fun LeaderboardListItem(item: LeaderboardItem, isUser: Boolean = false) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .background(
+                if (isUser) Color(0xFF3A80F7) else MaterialTheme.colorScheme.surfaceContainerLow,
+                shape = RoundedCornerShape(8.dp)
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = item.position.toString(),
+            color = if (isUser) Color.White else MaterialTheme.colorScheme.primary,
+            modifier = Modifier
+                .padding(horizontal = 12.dp)
+                .padding(vertical = 16.dp)
+        )
+
+        Image(
+            painter = painterResource(id = item.imageUrl),
+            contentDescription = item.name,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+        )
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Row {
             Text(
-                text = username,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.weight(1f)
+                text = item.name,
+                color = if(isUser) Color.White else MaterialTheme.colorScheme.onSurface,
+                fontWeight = if (isUser) FontWeight.Bold else FontWeight.Normal
             )
+            Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = "$score pts",
-                fontWeight = FontWeight.Bold
+                fontWeight = if (isUser) FontWeight.Bold else FontWeight.Normal,
+                modifier = Modifier.width(50.dp),
+                text = "${item.points}",
+                color = if(isUser) Color.White else MaterialTheme.colorScheme.primary,
+                fontSize = 14.sp
             )
         }
     }

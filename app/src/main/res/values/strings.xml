@@ -37,4 +37,6 @@
     <string name="play">Play</string>
     <string name="choose_mode">Choose mode</string>
     <string name="random">Random</string>
+    <string name="rating_game">Ranking game</string>
+    <string name="non_rating_game">Non ranking</string>
 </resources>

@@ -33,7 +33,7 @@ class HomeScreenViewModel : ViewModel() {
                         id = 2,
                         type = "group",
                         name = R.string.group,
-                        image = R.drawable.groupcup
+                        image = R.drawable.groupgame
                     )
                 )
                 _categories.addAll(categoriesList)

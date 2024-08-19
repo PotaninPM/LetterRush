@@ -38,4 +38,6 @@
     <string name="play">Играть</string>
     <string name="choose_mode">Выберите режим</string>
     <string name="random">Случайный</string>
+    <string name="rating_game">С рейтингом</string>
+    <string name="non_rating_game">Без рейтинга</string>
 </resources>

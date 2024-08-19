@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsStartWidth
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -32,6 +33,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,6 +42,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItemDefaults.contentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -64,6 +67,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -120,7 +124,7 @@ fun HomeScreen(navController: NavController) {
 //            RandomGameSection(titleRes = R.string.random_game) {
 //                RandomGameCard(navController = navController)
 //            }
-            UpSliderWithAds(3, arrayListOf("Приглашайте друзей", "Учавствуйте в событиях", "Радуйтесь кадый день"))
+            UpSliderWithAds(3)
 
             GamesByCategorySection(titleRes = R.string.by_category) {
                 val categories = viewModel.categories
@@ -144,7 +148,7 @@ fun HomeScreen(navController: NavController) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun UpSliderWithAds(pages: Int, info: ArrayList<String>) {
+fun UpSliderWithAds(pages: Int) {
     
     val pageCount = pages
 
@@ -154,20 +158,12 @@ fun UpSliderWithAds(pages: Int, info: ArrayList<String>) {
         state = pagerState,
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp)
+            .height(170.dp)
     ) { page ->
-        Card(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
-                .border(
-                    width = 1.dp,
-                    MaterialTheme.colorScheme.primary,
-                    shape = MaterialTheme.shapes.medium
-                ),
-            shape = MaterialTheme.shapes.medium,
-        ) {
-            Text(text = info[page])
+        when(page) {
+            0 -> QuizInviteCard()
+            1 -> DailyTaskCard()
+            2 -> DailyTaskCard()
         }
     }
 
@@ -179,7 +175,7 @@ fun UpSliderWithAds(pages: Int, info: ArrayList<String>) {
         horizontalArrangement = Arrangement.Center
     ) {
         repeat(pagerState.pageCount) { iteration ->
-            val color = if (pagerState.currentPage == iteration) Color.Blue else MaterialTheme.colorScheme.primaryContainer
+            val color = if (pagerState.currentPage == iteration) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer
             Box(
                 modifier = Modifier
                     .padding(end = 5.dp)
@@ -191,6 +187,66 @@ fun UpSliderWithAds(pages: Int, info: ArrayList<String>) {
         }
     }
 }
+
+@Composable
+fun DailyTaskCard() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .height(160.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color(0xFF4F81CB))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Ежедневная задача:\nУгадай город!",
+                color = Color.White,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            Button(
+                onClick = { /* TODO: Handle button click */ },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                modifier = Modifier.align(Alignment.Start)
+            ) {
+                Text(
+                    text = "Угадать",
+                    color = Color(0xFF4F81CB),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+            }
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(end = 16.dp, top = 16.dp),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+//            Image(
+//                painter = painterResource(id = R.drawable.chat_24px), // Replace with the actual city image
+//                contentDescription = null,
+//                contentScale = ContentScale.Crop,
+//                modifier = Modifier
+//                    .size(100.dp)
+//                    .clip(CircleShape)
+//                    .background(Color(0xFFB28AFF))
+//                    .padding(8.dp)
+//            )
+        }
+    }
+}
+
 
 @Composable
 fun RandomGameSection(
@@ -343,5 +399,68 @@ fun GameByCategoryCard(
                     .padding(16.dp)
             )
         }
+    }
+}
+
+@Composable
+fun QuizInviteCard() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .height(160.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color(0xFF6A4FCB))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(18.dp),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Пригласи друзей и играй вместе с ними!",
+                color = Color.White,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(bottom = 16.dp)
+                    .width(240.dp)
+            )
+
+            Button(
+                onClick = { /* TODO: Handle button click */ },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                modifier = Modifier.align(Alignment.Start)
+            ) {
+                Text(
+                    text = "Пригласить",
+                    color = Color(0xFF6A4FCB),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+            }
+        }
+
+        Image(
+            painter = painterResource(id = R.drawable.apple),
+            contentDescription = null,
+            modifier = Modifier
+                .size(48.dp)
+                .clip(CircleShape)
+                .align(Alignment.CenterEnd)
+                .padding(8.dp)
+        )
+
+//        Image(
+//            painter = painterResource(id = R.drawable.dices),
+//            contentDescription = null,
+//            modifier = Modifier
+//                .size(48.dp)
+//                .clip(CircleShape)
+//                .background(Color(0xFFB28AFF))
+//                .padding(8.dp)
+//        )
+
     }
 }

@@ -1,5 +1,6 @@
 package com.mikepm.letterrush.ui.screens
 
+import android.health.connect.datatypes.HeightRecord
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -7,12 +8,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -60,6 +64,7 @@ fun GamesScreen(navController: NavController) {
     var searchText by rememberSaveable { mutableStateOf("") }
 
     Scaffold(
+
         topBar = {
             TopAppBar(
                 title = {
@@ -85,6 +90,7 @@ fun GamesScreen(navController: NavController) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.surfaceContainerLowest)
                 .padding(innerPadding)
         ) {
             Column {
@@ -130,7 +136,6 @@ fun GameList(id: String) {
 
     val idString = id.toString()
 
-    // Filter the games where the game id contains the given id digits
     val filteredGames = games.filter { it.id.contains(idString) }
 
     LazyColumn(
@@ -196,6 +201,7 @@ fun GameCard(type: String, playersIn: Int, maxPlayers: Int, status: String, id: 
         Row(
             modifier = Modifier
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surfaceContainerLow)
         ) {
             Image(
                 painter = painterResource(id = image),
@@ -220,14 +226,24 @@ fun GameCard(type: String, playersIn: Int, maxPlayers: Int, status: String, id: 
                 Text(text = stringResource(R.string.players, playersIn, maxPlayers), style = MaterialTheme.typography.bodyMedium)
             }
 
-            Box(
+            Spacer(modifier = Modifier.weight(1f))
+
+            Row(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(backgroundColor)
-                    .border(1.dp, borderColor, shape = RoundedCornerShape(20.dp))
-                    .padding(horizontal = 10.dp, vertical = 6.dp),
+                    .fillMaxHeight()
+                    .padding(horizontal = 10.dp),
+                horizontalArrangement = Arrangement.End,
             ) {
-                Text(text = status_lang, color = Color.White, style = MaterialTheme.typography.bodyMedium)
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(backgroundColor)
+                        .align(Alignment.CenterVertically)
+                        .border(1.dp, borderColor, shape = RoundedCornerShape(20.dp))
+                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                ) {
+                    Text(text = status_lang, style = MaterialTheme.typography.bodyMedium)
+                }
             }
         }
     }
