@@ -45,7 +45,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.mikepm.letterrush.R
 import com.mikepm.letterrush.core.network.entities.MessageSender
@@ -57,7 +59,7 @@ fun getRandomColor(): Color {
 
     channels[Random.nextInt(3)] = 1.0f
 
-    for (i in channels.indices) {
+    for(i in channels.indices) {
         if (channels[i] == 0f) {
             channels[i] = Random.nextFloat() * 0.5f + 0.5f
         }
@@ -81,6 +83,8 @@ fun LobbyScreen(
             arrayListOf(
                 MessageSender("Alice", "Боб"),
                 MessageSender("Bob", "Арбуз"),
+                MessageSender("Bob", "Арбуз"),
+                MessageSender("Bob", "Арбуз")
             )
         )
     }
@@ -154,7 +158,7 @@ fun CurrentChat(messages: ArrayList<MessageSender>, userColors: MutableMap<Strin
             }
         }
 
-        LaunchedEffect(key1 = messages.size) {3
+        LaunchedEffect(key1 = messages.size) {
             listState.scrollToItem(0)
         }
     }
@@ -226,11 +230,24 @@ fun MessageInput(onSendMessage: (MessageSender) -> Unit) {
 @Composable
 fun AllParticipantsList(participants: ArrayList<Participant>) {
     LazyRow(
-        contentPadding = PaddingValues(horizontal = 26.dp),
+        contentPadding = PaddingValues(horizontal = 20.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(participants) { participant ->
             ParticipantCard(participant)
+        }
+    }
+}
+
+@Composable
+fun NextMode() {
+    var dialog by rememberSaveable {
+        mutableStateOf(true)
+    }
+    
+    if(dialog) {
+        Dialog(onDismissRequest = { dialog = !dialog }) {
+
         }
     }
 }
@@ -247,7 +264,7 @@ fun ParticipantCard(participant: Participant) {
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(64.dp)
-                .clip(shape = MaterialTheme.shapes.medium)
+                .clip(shape = MaterialTheme.shapes.large)
                 .border(
                     2.dp,
                     MaterialTheme.colorScheme.primary,

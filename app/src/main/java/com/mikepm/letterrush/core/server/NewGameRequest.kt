@@ -1,11 +1,11 @@
-package com.mikepm.letterrush.core.network.entities
+package com.mikepm.letterrush.core.server
 
 import com.google.gson.annotations.SerializedName
 
-data class GameInfo(
-    @SerializedName("id") val id: Int,
+data class NewGameRequest(
     @SerializedName("roomName") val roomName: String,
     @SerializedName("isPrivate") val isPrivate: Boolean,
+    @SerializedName("password") val password: String,
     @SerializedName("isRated") val isRated: Boolean,
     @SerializedName("mode") val mode: String,
     @SerializedName("playerLimit") val playerLimit: Int,

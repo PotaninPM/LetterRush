@@ -1,5 +1,6 @@
 package com.mikepm.letterrush.ui.screens
 
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -36,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -47,15 +49,43 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mikepm.letterrush.R
+import com.mikepm.letterrush.core.network.entities.GameCategory
 import com.mikepm.letterrush.core.network.entities.GameMode
-import com.mikepm.letterrush.ui.navigation.Screen
+import com.mikepm.letterrush.core.server.NewGameRequest
+import com.mikepm.letterrush.core.server.createNewGame
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateGameScreen(navController: NavController) {
+    val categoriesList = listOf(
+        GameMode(
+            id = "cities",
+            title = stringResource(id = R.string.cities),
+            image = R.drawable.skyscraper
+        ),
+        GameMode(
+            id = "food",
+            title = stringResource(id = R.string.food),
+            image = R.drawable.apple
+        ),
+        GameMode(
+            id = "animals",
+            title = stringResource(id = R.string.animals),
+            image = R.drawable.capybara
+        )
+    )
+
     var playersLimit by rememberSaveable { mutableIntStateOf(2) }
     var roomName by rememberSaveable { mutableStateOf("") }
+    var roomPassword by rememberSaveable { mutableStateOf("") }
+    var isRated by rememberSaveable { mutableStateOf(false) }
+    var selectedMode by rememberSaveable { mutableStateOf(categoriesList[0].title) }
+    var modeServer by rememberSaveable { mutableStateOf(categoriesList[0].id) }
+    var isPrivate by rememberSaveable { mutableStateOf(false) }
+
     val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -86,10 +116,39 @@ fun CreateGameScreen(navController: NavController) {
                         contentDescription = null
                     )
                 },
-                onClick = if (roomName.isNotBlank()) {
-                    { navController.navigate("${Screen.LobbyScreen.route}/$roomName") }
-                } else {
-                    { null }
+                onClick =  {
+                    checkIfAllInfoWasFilled(
+                        roomName = roomName
+                    ) { ans ->
+                        if(ans) {
+                            coroutineScope.launch {
+                                val newGame = NewGameRequest(
+                                    roomName = roomName,
+                                    password = roomPassword,
+                                    isPrivate = isPrivate,
+                                    isRated = isRated,
+                                    mode = modeServer,
+                                    currentPlayers = 1,
+                                    playerLimit = playersLimit,
+                                    turnDurationSec = 60
+                                )
+                                Log.i("INFOG", "$newGame")
+                                try {
+                                    val success = createNewGame(newGame)
+                                    if (success) {
+                                        Log.i("INFOG", "Game created successfully $newGame")
+                                    } else {
+                                        Log.e("INFOG", "Failed to create game $success")
+                                    }
+                                } catch (e: Error) {
+
+                                }
+                            }
+                        } else {
+
+                        }
+                    }
+                   // { navController.navigate("${Screen.LobbyScreen.route}/$roomName") }
                 },
             )
         }
@@ -104,11 +163,27 @@ fun CreateGameScreen(navController: NavController) {
                 RoomNameTextField(roomName) { newRoomName ->
                     roomName = newRoomName
                 }
-                RoomPasswordTextField()
-                RankingImpactSwitch()
+                RoomPasswordTextField(roomPassword) { newRoomPassword ->
+                    roomPassword = newRoomPassword
+                    if(newRoomPassword.trim() == "") {
+                        isPrivate = false
+                    } else {
+                        isRated = false
+                        isPrivate = true
+                    }
+                }
+                RankingImpactSwitch(isRated) { newImpact ->
+                    isRated = newImpact
+                }
             }
             GameModeSection(titleRes = R.string.mode) {
-                GameModeDropdownMenu()
+                GameModeDropdownMenu(
+                    categoriesList = categoriesList,
+                    selectedCategory = selectedMode
+                ) { mode ->
+                    modeServer = mode.id
+                    selectedMode = mode.title
+                }
             }
             PlayersLimitSection(titleRes = R.string.players_limit, playersLimit = playersLimit) {
                 PlayersLimitSlider(playersLimit) { newLimit ->
@@ -119,6 +194,15 @@ fun CreateGameScreen(navController: NavController) {
                 TurnPlayersLimit()
             }
         }
+    }
+}
+
+fun checkIfAllInfoWasFilled(
+    roomName: String,
+    ans: (Boolean) -> Unit
+) {
+    if(roomName.trim() != "") {
+        ans(true)
     }
 }
 
@@ -170,12 +254,14 @@ fun RoomNameTextField(
 }
 
 @Composable
-fun RoomPasswordTextField() {
-    var roomPassword by rememberSaveable { mutableStateOf("") }
+fun RoomPasswordTextField(
+    roomPassword: String,
+    onValueChange: (String) -> Unit
+) {
 
     TextField(
         value = roomPassword,
-        onValueChange = { roomPassword = it },
+        onValueChange = onValueChange,
         label = { Text(stringResource(R.string.room_password)) },
         modifier = Modifier
             .fillMaxWidth()
@@ -198,9 +284,10 @@ fun RoomPasswordTextField() {
 }
 
 @Composable
-fun RankingImpactSwitch() {
-    var isChecked by rememberSaveable { mutableStateOf(false) }
-
+fun RankingImpactSwitch(
+    isRated: Boolean,
+    onValueChange: (Boolean) -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -212,9 +299,9 @@ fun RankingImpactSwitch() {
             modifier = Modifier.weight(1f)
         )
         Switch(
-            checked = isChecked,
-            onCheckedChange = { isChecked = it },
-            thumbContent = if (isChecked) {
+            checked = isRated,
+            onCheckedChange = onValueChange,
+            thumbContent = if (isRated) {
                 {
                     Icon(
                         painter = painterResource(id = R.drawable.trophy_filled),
@@ -249,27 +336,12 @@ fun GameModeSection(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GameModeDropdownMenu() {
-    val categoriesList = listOf(
-        GameMode(
-            id = "cities",
-            title = stringResource(id = R.string.cities),
-            image = R.drawable.skyscraper
-        ),
-        GameMode(
-            id = "food",
-            title = stringResource(id = R.string.food),
-            image = R.drawable.apple
-        ),
-        GameMode(
-            id = "animals",
-            title = stringResource(id = R.string.animals),
-            image = R.drawable.sex_sex
-        )
-    )
-
+fun GameModeDropdownMenu(
+    selectedCategory: String,
+    categoriesList: List<GameMode>,
+    onValueChange: (GameMode) -> Unit
+) {
     var isExpanded by rememberSaveable { mutableStateOf(false) }
-    var selectedCategory by rememberSaveable { mutableStateOf(categoriesList[0].title) }
 
     ExposedDropdownMenuBox(
         expanded = isExpanded,
@@ -314,7 +386,7 @@ fun GameModeDropdownMenu() {
             categoriesList.forEach { category ->
                 DropdownMenuItem(
                     onClick = {
-                        selectedCategory = category.title
+                        onValueChange(category)
                         isExpanded = false
                     },
                     text = {
@@ -395,7 +467,9 @@ fun TurnPlayersLimitSection(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TurnPlayersLimit() {
+fun TurnPlayersLimit(
+
+) {
     val units = listOf(
         stringResource(id = R.string.seconds),
         stringResource(id = R.string.minutes),

@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.mikepm.letterrush.ui.screens.AccountScreen
 import com.mikepm.letterrush.ui.screens.CreateGameScreen
+import com.mikepm.letterrush.ui.screens.CustomSplashScreen
 import com.mikepm.letterrush.ui.screens.GameSettingsScreen
 import com.mikepm.letterrush.ui.screens.GamesScreen
 import com.mikepm.letterrush.ui.screens.HomeScreen
@@ -28,6 +29,16 @@ fun LetterRushNavHost(
         enterTransition = { EnterTransition.None },
         exitTransition = { ExitTransition.None }
     ) {
+//        composable("splash") {
+//            CustomSplashScreen(
+//                onTimeout = {
+//                    navController.navigate("home_screen") {
+//                        popUpTo("splash") { inclusive = true }
+//                    }
+//                }
+//            )
+//        }
+
         composable(Screen.MainScreen.route) {
             MainScreen()
         }

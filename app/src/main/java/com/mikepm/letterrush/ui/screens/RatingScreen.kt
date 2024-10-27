@@ -1,5 +1,6 @@
 package com.mikepm.letterrush.ui.screens
 
+import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,6 +14,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -28,15 +31,15 @@ data class LeaderboardItem(
     val position: Int,
     val name: String,
     val points: Int,
-    val imageUrl: Int // Replace with the actual image resource
+    val imageUrl: Int
 )
 
 @Composable
 fun RatingScreen() {
     val leaderboardItems = listOf(
-        LeaderboardItem(1, "Bryan Wolf", 400, R.drawable.moscow), // Replace with the actual image resource
-        LeaderboardItem(2, "Meghan Jessica", 390, R.drawable.moscow),
-        LeaderboardItem(3, "Alex Turner", 380, R.drawable.moscow),
+        LeaderboardItem(1, "Bryahn", 400, R.drawable.moscow), // Replace with the actual image resource
+        LeaderboardItem(2, "Meghan", 390, R.drawable.moscow),
+        LeaderboardItem(3, "Alex", 380, R.drawable.moscow),
         LeaderboardItem(4, "Marsha Fisher", 360, R.drawable.moscow),
         LeaderboardItem(5, "Marsha Fisher", 360, R.drawable.moscow),
         LeaderboardItem(6, "Marsha Fisher", 360, R.drawable.moscow),
@@ -44,6 +47,9 @@ fun RatingScreen() {
         LeaderboardItem(8, "Marsha Fisher", 360, R.drawable.moscow),
         LeaderboardItem(9, "Marsha Fisher", 360, R.drawable.moscow),
         LeaderboardItem(10, "Marsha Fisher", 360, R.drawable.moscow),
+        LeaderboardItem(11, "Marsha Fisher", 360, R.drawable.moscow),
+        LeaderboardItem(12, "Marsha Fisher", 360, R.drawable.moscow),
+        LeaderboardItem(13, "Marsha Fisher", 360, R.drawable.moscow),
         // Add more items as needed
     )
     val userPosition = LeaderboardItem(101, "Вы", 30, R.drawable.moscow)
@@ -55,19 +61,20 @@ fun RatingScreen() {
             .padding(horizontal = 16.dp, vertical = 10.dp)
             .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Top))
     ) {
-        // Top 3 users
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 5.dp),
+            horizontalArrangement = Arrangement.Absolute.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             leaderboardItems.take(3).forEach { item ->
                 LeaderboardTopItem(item)
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-        // Other users
         LazyColumn(
             modifier = Modifier
                 .weight(1f)
@@ -83,45 +90,75 @@ fun RatingScreen() {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // User position at the bottom
         LeaderboardListItem(userPosition, isUser = true)
     }
 }
 
 @Composable
 fun LeaderboardTopItem(item: LeaderboardItem) {
-    Column(
+    Box(
         modifier = Modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
+        contentAlignment = Alignment.Center
     ) {
-        Image(
-            painter = painterResource(id = item.imageUrl),
-            contentDescription = item.name,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .size(70.dp)
-                .border(
-                    width = 2.dp,
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = CircleShape
+        Column(
+            modifier = Modifier,
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally),
+            ) {
+                Image(
+                    painter = painterResource(id = item.imageUrl),
+                    contentDescription = item.name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(70.dp)
+                        .border(
+                            width = 2.dp,
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = CircleShape
+                        )
+                        .clip(CircleShape)
                 )
-                .clip(CircleShape)
-        )
 
-        Spacer(modifier = Modifier.height(8.dp))
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .background(
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = CircleShape
+                        )
+                        .size(24.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = item.position.toString(),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                    )
+                }
 
-        Text(
-            text = item.name,
-            fontSize = 14.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 4.dp)
-        )
+            }
 
-        Text(
-            text = "${item.points} pts",
-            color = Color.Gray,
-            fontSize = 12.sp
-        )
+            Text(
+                text = item.name,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+            )
+
+            Text(
+                text = "${item.points}",
+                color = Color.Gray,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                fontSize = 14.sp
+            )
+        }
     }
 }
 
@@ -130,10 +167,11 @@ fun LeaderboardListItem(item: LeaderboardItem, isUser: Boolean = false) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .shadow(if(isUser) 0.dp else 18.dp)
             .padding(vertical = 4.dp)
             .background(
                 if (isUser) Color(0xFF3A80F7) else MaterialTheme.colorScheme.surfaceContainerLow,
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(12.dp)
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -142,7 +180,7 @@ fun LeaderboardListItem(item: LeaderboardItem, isUser: Boolean = false) {
             color = if (isUser) Color.White else MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .padding(horizontal = 12.dp)
-                .padding(vertical = 16.dp)
+                .padding(vertical = 14.dp)
         )
 
         Image(

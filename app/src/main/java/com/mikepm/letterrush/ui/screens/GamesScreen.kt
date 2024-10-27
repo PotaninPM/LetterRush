@@ -1,6 +1,7 @@
 package com.mikepm.letterrush.ui.screens
 
 import android.health.connect.datatypes.HeightRecord
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,11 +24,18 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,14 +46,18 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults.colors
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -55,7 +67,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mikepm.letterrush.R
 import com.mikepm.letterrush.core.network.entities.GameInfo
+import com.mikepm.letterrush.core.server.fetchGames
 import com.mikepm.letterrush.ui.navigation.Screen
+import kotlinx.coroutines.launch
+import java.util.logging.Filter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -124,31 +139,49 @@ fun GamesScreen(navController: NavController) {
 
 @Composable
 fun GameList(id: String) {
-    val games = remember {
-        arrayListOf(
-            GameInfo("cities", 2, 4, "open", "1"),
-            GameInfo("animals", 1, 4, "private", "2"),
-            GameInfo("cities", 3, 4, "open", "3"),
-            GameInfo("food", 4, 4, "full", "4"),
-            GameInfo("animals", 2, 4, "open", "5")
-        )
+    var games by rememberSaveable {
+        mutableStateOf<List<GameInfo>>(emptyList())
     }
 
-    val idString = id.toString()
+    val coroutineScope = rememberCoroutineScope()
 
-    val filteredGames = games.filter { it.id.contains(idString) }
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            try {
+                val fetchedGames = fetchGames()
+                if(id != "") {
+                    games = fetchedGames.filter { game -> game.id.toString() == id }
+                } else {
+                    games = fetchedGames
+                }
+            } catch (e: Exception) {
+                Log.e("Error", "Failed to fetch games: ${e.message}")
+            }
+        }
+    }
 
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        items(filteredGames) { game ->
+        items(games) { game ->
+            val status = when(game.isPrivate) {
+                true -> "private"
+                false -> {
+                    if(game.playerLimit == game.currentPlayers) {
+                        "full"
+                    } else {
+                        "open"
+                    }
+                }
+            }
+
             GameCard(
-                type = game.type,
-                playersIn = game.playersIn,
-                maxPlayers = game.maxPlayers,
-                status = game.status,
-                id = game.id
+                type = game.mode,
+                playersIn = game.currentPlayers,
+                maxPlayers = game.playerLimit,
+                status = status,
+                id = game.id.toString()
             )
         }
     }
@@ -189,12 +222,10 @@ fun GameCard(type: String, playersIn: Int, maxPlayers: Int, status: String, id: 
     }
 
     Card(
-        colors = CardDefaults.cardColors(
-            containerColor = Color.Black,
-        ),
         modifier = Modifier
             .padding(horizontal = 12.dp, vertical = 4.dp)
             .fillMaxWidth()
+            .shadow(15.dp)
             .height(95.dp),
         shape = MaterialTheme.shapes.medium
     ) {
@@ -250,12 +281,65 @@ fun GameCard(type: String, playersIn: Int, maxPlayers: Int, status: String, id: 
 }
 
 @Composable
+fun FilterDropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    onFilterSelected: (List<String>) -> Unit
+) {
+    val selectedFilters = remember { mutableStateListOf<String>() }
+
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismissRequest
+    ) {
+        val filters = listOf("Filter 1", "Filter 2", "Filter 3")
+        filters.forEach {
+            FilterChip(it)
+        }
+    }
+}
+
+@Composable
+fun FilterChip(
+    type: String
+) {
+    var selected by remember { mutableStateOf(false) }
+
+    FilterChip(
+        onClick = { selected = !selected },
+        label = {
+            Text("Filter chip")
+        },
+        selected = selected,
+        leadingIcon = if (selected) {
+            {
+                Icon(
+                    imageVector = Icons.Filled.Done,
+                    contentDescription = "Done icon",
+                    modifier = Modifier.size(FilterChipDefaults.IconSize)
+                )
+            }
+        } else {
+            null
+        },
+    )
+}
+
+@Composable
 fun SearchBar(
     onFilterChanged: (String) -> Unit
 ) {
     var searchText by rememberSaveable {
         mutableStateOf("")
     }
+    var showFilterDialog by remember { mutableStateOf(false) }
+
+    if (showFilterDialog) {
+        FilterDropdownMenu(expanded = showFilterDialog, onDismissRequest = { showFilterDialog }) {
+            
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -288,7 +372,7 @@ fun SearchBar(
             trailingIcon = {
                 IconButton(
                     onClick = {
-                        // Add functionality for filter button if needed
+                        showFilterDialog = true
                     }
                 ) {
                     Icon(painter = painterResource(id = R.drawable.filter_alt_24px), contentDescription = null)
